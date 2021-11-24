@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+#IP=`lwp-request -o text checkip.dyndns.org | awk '{ print $NF }'`
+
+IP=`dig @resolver4.opendns.com myip.opendns.com +short`
+text=';
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     simet.com.tr. root.xxx.com.tr. (
+                     2021050501         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;Name Servers NS records
+                        IN      NS      ns1.xxx.com.
+                        IN      NS      ns2.xxx.com.
+
+;Name Server MX records
+                        IN      MX      10 mail.xxx.com.
+
+;Name Servers A records
+'
+echo "$text""xxx.website.        IN      A	$IP" > ./db.77.79
