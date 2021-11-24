@@ -9,8 +9,8 @@ systemctl enable apache2
 systemctl restart apache2
 systemctl status apache2
 cd /var/www/
-mkdir -p mftekno.site/public_html
-chown -R www-data:www-data mftekno.site/public_html/
+mkdir -p xxx.site/public_html
+chown -R www-data:www-data xxx.site/public_html/
 sudo chmod -R 755 /var/www
 cd mftekno.site/public_html/
 nano index.html
