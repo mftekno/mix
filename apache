@@ -1,0 +1,52 @@
+sudo su
+apt update
+apt upgrade
+apt install net-tools
+ifconfig
+apt install apache2 -y
+systemctl start apache2
+systemctl enable apache2
+systemctl restart apache2
+systemctl status apache2
+cd /var/www/
+mkdir -p mftekno.site/public_html
+chown -R www-data:www-data mftekno.site/public_html/
+sudo chmod -R 755 /var/www
+cd mftekno.site/public_html/
+nano index.html
+        <!doctype html>
+        <html>
+            <head>
+                <title>xxx</title>
+            </head>
+            <body> <h1> deneme sayfasi </h1>
+            </body>
+        </html> 
+
+cd /etc/apache2/sites-available
+nano xxx.site.conf
+        <VirtualHost *:80>
+            ServerAdmin admin@xxx.site
+            ServerName xxx.site
+            ServerAlias www.xxx.site
+            DocumentRoot /var/www/xxx.site/public_html
+            ErrorLog ${APACHE_LOG_DIR}/error.log
+            CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>
+
+sudo a2ensite xxx.site.conf
+sudo a2dissite 000-default.conf
+systemctl restart apache2
+systemctl status apache2
+
+apt install certbot python3-certbot-apache
+apache2ctl configtest
+systemctl reload apache2
+certbot --apache
+    admin@xxx.site
+    A
+    N
+    Enter
+    2
+systemctl status certbot.timer
+certbot renew --dry-run
