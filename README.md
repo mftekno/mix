@@ -1,2 +1,2 @@
-# mix
-karışık
+# mftekno
+hoşgeldiniz
