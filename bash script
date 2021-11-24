@@ -7,7 +7,7 @@ text=';
 ; BIND data file for local loopback interface
 ;
 $TTL    604800
-@       IN      SOA     simet.com.tr. root.xxx.com.tr. (
+@       IN      SOA     xxx.com.tr. root.xxx.com.tr. (
                      2021050501         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
