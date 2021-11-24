@@ -1,0 +1,129 @@
+apt install net-tools
+ifconfig
+apt install dnsutils bind9
+systemctl start named
+systemctl enable named
+systemctl restart named
+systemctl status named
+cd /etc/bind
+nano named.conf
+// This is the primary configuration file for the BIND DNS server named.
+//
+// Please read /usr/share/doc/bind9/README.Debian.gz for information on the
+// structure of BIND configuration files in Debian, *BEFORE* you customize
+// this configuration file.
+//
+// If you are just adding zones, please do that in /etc/bind/named.conf.local
+
+include "/etc/bind/named.conf.options";
+//include "/etc/bind/named.conf.local";
+//include "/etc/bind/named.conf.default-zones";
+include "/etc/bind/named.conf.external-zones";
+
+
+nano named.conf.options
+options {
+        directory "/var/cache/bind";
+
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+        // If your ISP provided one or more IP addresses for stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0's placeholder.
+
+        // forwarders {
+        //      0.0.0.0;
+        // };
+
+        # add : receive queries from all hosts
+        allow-query { any; };
+        # network range you allow to transfer zone files to clients
+        # add secondary DNS servers if it exist
+        allow-transfer { localhost; };
+        # add : not allow recursion
+        recursion no;
+
+        //========================================================================
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //========================================================================
+        dnssec-validation auto;
+
+        listen-on-v6 { any; };
+    };
+
+
+nano /etc/bind/named.conf.external-zones
+# create new
+# add zones for your network and domain name
+zone "xxx.website" IN {
+    type master;
+    file "/etc/bind/xxx.website.wan";
+    allow-update { none; };
+};
+zone "206.227.88.in-addr.arpa" IN {
+    type master;
+    file "/etc/bind/206.227.88.db";
+    allow-update { none; };
+};
+# if you don't use IPv6 and also suppress logs for IPv6 related, possible to change
+# set BIND to use only IPv4
+
+
+nano /etc/default/named
+#
+# run resolvconf?
+RESOLVCONF=no
+
+# startup options for the server
+OPTIONS="-u bind -4"
+
+
+
+nano /etc/bind/xxx.website.wan
+$TTL 86400
+@   IN  SOA     ns1.xxx.website. root.xxx.website. (
+        20210905    ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+        IN      NS              ns1.xxx.website.
+        IN      A               88.227.206.230
+        IN      MX      10      mail.xxx.website.
+        IN      TXT             "v=spf1 a mx a:mail.xxx.website a:www.xxx.website ~all"
+
+ns1     IN      A               88.227.206.230
+www     IN      A               88.227.206.230
+mail    IN      A               88.227.206.230
+
+
+
+
+nano /etc/bind/206.227.88.db
+$TTL 86400
+@   IN  SOA     ns1.xxx.website. root.xxx.website. (
+        20210905    ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+        IN      NS              ns1.xxx.website.
+        IN      MX      10      mail.xxx.website
+230     IN      PTR             ns1.xxx.website.
+230     IN      PTR             www.xxx.website.
+230     IN      PTR             mail.xxx.website.
+
+
+
+systemctl restart named
+named-checkconf
+dig -x 88.227.206.230
+dig ns1.xxx.website.
+named-checkzone xxx.website xxx.website.wan
+named-checkzone 88.227.206.230 206.227.88.db
