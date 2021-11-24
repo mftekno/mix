@@ -1,0 +1,46 @@
+sudo su
+apt update
+apt upgrade
+apt install net-tools
+ifconfig
+apt install nginx
+cd /etc/nginx/sites-enabled/
+unlink default
+cd /etc/nginx/conf.d/
+nano new_sites.conf
+    server {
+        listen 80 default_server;
+        server_name mftekno.site www.mftekno.site;
+
+        location / {
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://192.168.10.188:8081;
+        }
+    }
+    server {
+        listen 80;
+        server_name draytek.mftekno.site;
+
+        location / {
+                proxy_pass http://192.168.10.216:80;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+nginx -t
+systemctl reload nginx
+nginx -s reload
+systemctl start nginx
+nginx -s reload
+apt-get install python3-certbot-nginx
+certbot --nginx
+    A
+    N
+    Enter
+    2
+systemctl status certbot.timer
+certbot renew --dry-run
